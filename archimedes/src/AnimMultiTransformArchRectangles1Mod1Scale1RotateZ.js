@@ -1,4 +1,5 @@
 define(function(require, exports, module) {
+  var Easing = require('famous/transitions/Easing');
   var Engine = require('famous/core/Engine');
   var Surface = require('famous/core/Surface');
   var Transform = require('famous/core/Transform');
@@ -21,7 +22,11 @@ define(function(require, exports, module) {
 
   var rectWidth=60, rectHeight=60;
   var offsetX=0, offsetY=0, index=0;
-  var color="", colors=["#FF0000","#FFFF00","#FF00FF","#0000FF"];
+  var duration=0, durations=[8000,6500,7000,7500];
+  var height=0, heights=[200,204,202,196];
+  var color="",colors=["#FF4400","#FF0F0F","#FF00FF","#0000FF"];
+
+  var easingTypes=[Easing.inQuad,Easing.outQuad,Easing.inOutQuad,Easing.inCubic,Easing.outCubic,Easing.inOutCubic,Easing.inQuart,Easing.outQuart,Easing.inOutQuart,Easing.inQuint,Easing.outQuint,Easing.inOutQuint,Easing.inSine,Easing.outSine,Easing.inOutSine,Easing.inExpo,Easing.outExpo,Easing.inOutExpo,Easing.inCirc,Easing.outCirc,Easing.inOutCirc,Easing.inElastic,Easing.outElastic,Easing.inOutElastic,Easing.inBack,Easing.outBack,Easing.inOutBack,Easing.inBounce,Easing.outBounce,Easing.inOutBounce];
 
   for(angle=0; angle<maxAngle; angle+=deltaAngle) {
     radius   = Constant*angle;
@@ -32,16 +37,20 @@ define(function(require, exports, module) {
 
     // alternate between red and blue
     index = Math.floor(angle/deltaAngle) % colors.length;
-    color = colors[index%2];
+    color = colors[index];
 
     var surface = new Surface({
-        size: [rectWidth, rectHeight],
+        size: [(angle%rectWidth), (angle%rectHeight)],
         properties: {
             left: currentX+"px",
             top:  currentY+"px",
-            backgroundColor: color, 
-            borderRadius:'50%'
+            backgroundColor: color
         }
+    });
+
+    var scale1 = new StateModifier({
+      origin: [0.2,0.2],
+      transform: Transform.scale(2, 0.5, 0.3)
     });
 
     var scale1 = new StateModifier({
@@ -54,12 +63,29 @@ define(function(require, exports, module) {
       transform: Transform.rotateZ(-Math.PI/4)
     });
 
-    var stateModifier = new StateModifier();
+    var stateModifier = new StateModifier({
+      origin: [0.4, 0]
+    });
+ 
     mainContext.add(stateModifier).add(rotateZ45).add(scale1).add(surface);
 
+    duration = durations[index];
+    height = heights[index];
+    easing = easingTypes[index];
+
     stateModifier.setTransform(
-      Transform.translate(100, 100, 0),
-      { duration : 5000, curve: 'easeInOut' }
+      Transform.translate(height, height, 0),
+      { duration : duration, curve: easing}
+    );
+ 
+    stateModifier.setTransform(
+      Transform.rotateY(angle*Math.PI/180), 
+      { duration : duration, curve: easing}
+    );
+ 
+    stateModifier.setTransform(
+      Transform.scale(1.0/(1.0+height), 1.0/(1.0+height), 1.0/(1.0+height)),
+      { duration : duration, curve: easing}
     );
   }
 });

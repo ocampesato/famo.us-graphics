@@ -7,8 +7,8 @@ define(function(require, exports, module) {
 
   var mainContext = Engine.createContext();
   
-  var basePointX  = 200;
-  var basePointY  = 200;
+  var basePointX  = 0;
+  var basePointY  = 300;
   var currentX    = 0;
   var currentY    = 0;
   var offsetX     = 0;
